@@ -13,10 +13,14 @@ import java.util.Map;
 @Component
 public class MessageProcessor {
 
+    private boolean isUpdating = false;
+
     @Autowired
     private SolverBot bot;
 
     public String processSolverEvent(String fullCommand) throws CommandNotFoundException {
+        if (isUpdating) return "Currently performing maintenance procedures!";
+
         String[] commands = fullCommand.split(" ");
         String command = commands[0];
 
@@ -68,8 +72,21 @@ public class MessageProcessor {
                 selectFour--;
             }
             return stringBuilder.toString();
+        }  else if (command.equals(Commands.update.name())) {
+            isUpdating = true;
+            int numDays = Integer.parseInt(commands[1]);
+            bot.requestUpdate(numDays);
+            isUpdating = false;
+            return "Update maintenance is complete!";
+        } else {
+            return "Here are the available commands: \n" +
+                    "\n" +
+                    "   -stats: s!stats <god name> <low*>\n" +
+                    "   -update: s!update <number of days*>\n" +
+                    "\n" +
+                    "    *low sets the data to give only low mmr information\n" +
+                    "    *number of days must be at least 1 but less than or equal to 30\n";
         }
-        throw new CommandNotFoundException("Could not execute the given function, " + command);
     }
 
 }

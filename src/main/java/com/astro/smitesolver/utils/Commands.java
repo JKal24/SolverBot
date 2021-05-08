@@ -3,6 +3,7 @@ package com.astro.smitesolver.utils;
 public enum Commands {
 
     stats,
-    low
+    low,
+    update
 
 }

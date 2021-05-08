@@ -16,13 +16,12 @@ public class MessageEventListener implements EventListener<MessageCreateEvent> {
     @Autowired
     private MessageProcessor processor;
 
-    private static final Logger LOGGER = Logger.getLogger(MessageEventListener.class.getName());
-
     @Override
     public Mono<Void> execute(MessageCreateEvent event) {
         // This event listener will only register commands starting with s! for Smite related commands
         // Any other types of commands will have a different prefix and a different listener.
         Message message = event.getMessage();
+
         try {
             return Mono.just(message)
                     .filter(checkMessage -> checkMessage.getAuthor().map(user -> !user.isBot()).orElse(false))
@@ -32,7 +31,7 @@ public class MessageEventListener implements EventListener<MessageCreateEvent> {
                             processor.processSolverEvent(message.getContent().substring(2))))
                     .then();
         } catch (CommandNotFoundException e) {
-            LOGGER.log(Level.WARNING, e.getMessage());
+            this.handleError(e);
         }
         return Mono.just(message)
                 .flatMap(Message::getChannel)
