@@ -22,20 +22,21 @@ public class MessageEventListener implements EventListener<MessageCreateEvent> {
         // Any other types of commands will have a different prefix and a different listener.
         Message message = event.getMessage();
 
-        try {
-            return Mono.just(message)
-                    .filter(checkMessage -> checkMessage.getAuthor().map(user -> !user.isBot()).orElse(false))
-                    .filter(checkMessage -> checkMessage.getContent().startsWith("s!"))
-                    .flatMap(Message::getChannel)
-                    .flatMap(messageChannel -> messageChannel.createMessage(
-                            processor.processSolverEvent(message.getContent().substring(2))))
-                    .then();
-        } catch (CommandNotFoundException e) {
-            this.handleError(e);
-        }
+
         return Mono.just(message)
+                .filter(checkMessage -> checkMessage.getAuthor().map(user -> !user.isBot()).orElse(false))
+                .filter(checkMessage -> checkMessage.getContent().startsWith("s!"))
                 .flatMap(Message::getChannel)
-                .flatMap(messageChannel -> messageChannel.createMessage(String.format("Could not get data for %s", message.getContent()))).then();
+                .flatMap(messageChannel -> {
+                    try {
+                        return messageChannel.createMessage(
+                                processor.processSolverEvent(message.getContent().substring(2)));
+                    } catch (CommandNotFoundException e) {
+                        this.handleError(e);
+                    }
+                    return blankMessage(message);
+                })
+                .then();
     }
 
     @Override
@@ -46,5 +47,11 @@ public class MessageEventListener implements EventListener<MessageCreateEvent> {
     @Override
     public Mono<Void> handleError(Throwable error) {
         return EventListener.super.handleError(error);
+    }
+
+    private Mono<Void> blankMessage(Message message) {
+        return Mono.just(message)
+                .flatMap(Message::getChannel)
+                .flatMap(messageChannel -> messageChannel.createMessage(String.format("Could not get data for %s", message.getContent()))).then();
     }
 }

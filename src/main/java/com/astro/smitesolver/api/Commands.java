@@ -6,7 +6,11 @@ import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
+import java.lang.reflect.InvocationTargetException;
+import java.sql.SQLDataException;
 import java.util.Arrays;
+import java.util.Optional;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
@@ -57,7 +61,7 @@ public class Commands {
     }
 
     // Makes any API request, requires POJO
-    public <T> T makeRequestCall(Class<T> responseType, String request, String... additionalParams) throws NullPointerException {
+    public <T> T makeRequestCall(Class<T> responseType, String request, String... additionalParams) throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
         String timestamp = SessionUtils.makeAPITimeStamp();
         String[] initialData = {apiUri, request + "json", devID, SessionUtils.makeSignature(request, timestamp, devID, authKey), getSessionID(), timestamp};
         String requestUri = SessionUtils.makeRequestUri(
@@ -69,7 +73,7 @@ public class Commands {
         return SessionUtils.parseJSONData(responseType, info);
     }
 
-    public String makeRequestCall(String request, String... additionalParams) throws NullPointerException {
+    public String makeRequestCall(String request, String... additionalParams) {
         String timestamp = SessionUtils.makeAPITimeStamp();
         String[] initialData = {apiUri, request + "json", devID, SessionUtils.makeSignature(request, timestamp, devID, authKey), getSessionID(), timestamp};
         String requestUri = SessionUtils.makeRequestUri(

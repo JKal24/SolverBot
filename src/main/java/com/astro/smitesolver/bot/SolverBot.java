@@ -22,7 +22,7 @@ public class SolverBot {
         return dataFetchingService.getPerformanceData(godID, isHighMMR);
     }
 
-    public boolean requestUpdate(int numDays) {
+    public boolean requestUpdate(int numDays) throws CommandNotFoundException {
         try {
             dataFetchingService.requestUpdate(numDays);
         } catch (UpdateDataException e) {

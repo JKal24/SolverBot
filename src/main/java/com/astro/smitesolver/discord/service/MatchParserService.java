@@ -8,6 +8,7 @@ import com.astro.smitesolver.discord.entity.auxillary.Item;
 import com.astro.smitesolver.discord.entity.dailydata.DailyGodData;
 import com.astro.smitesolver.discord.entity.dailydata.DailyGodDataHighMMR;
 import com.astro.smitesolver.discord.entity.dailydata.DailyGodDataLowMMR;
+import com.astro.smitesolver.exception.EntityNotFoundException;
 import com.astro.smitesolver.exception.PatchNotFoundException;
 import com.astro.smitesolver.exception.UpdateDataException;
 import com.astro.smitesolver.discord.repository.GodNameRepository;
@@ -178,7 +179,7 @@ public class MatchParserService {
                     .map(MatchInfo::getMatchID)
                     .toArray(Integer[]::new);
             return api.getMultipleMatchData(matchIDs);
-        } catch (NullPointerException e) {
+        } catch (EntityNotFoundException e) {
             return new ArrayList<>();
         }
     }
@@ -190,7 +191,7 @@ public class MatchParserService {
                     .map(MatchInfo::getMatchID)
                     .toArray(Integer[]::new);
             return api.getMultipleMatchData(matchIDs);
-        } catch (NullPointerException e) {
+        } catch (EntityNotFoundException e) {
             return new ArrayList<>();
         }
     }
@@ -200,23 +201,33 @@ public class MatchParserService {
     }
 
     public void updateResources() {
-        GodInfo[] godList = api.getGods(Language.ENGLISH.getLanguageID());
-        for (GodInfo info : godList) {
-            Integer godID = info.getGodID();
-            godNameRepository.save(new GodName(godID, info.getName()));
+        try {
+            GodInfo[] godList = api.getGods(Language.ENGLISH.getLanguageID());
+            for (GodInfo info : godList) {
+                Integer godID = info.getGodID();
+                godNameRepository.save(new GodName(godID, info.getName()));
+            }
+        } catch (EntityNotFoundException e) {
+            LOGGER.log(Level.INFO, "Could not access items, session or request cap reached or, connection to API is down");
         }
 
-        BaseItemInfo[] itemInfos = api.getItems(Language.ENGLISH.getLanguageID());
-        for (BaseItemInfo info : itemInfos) {
-            updateService.updateItem(new BaseItemName(info.getItemID(), info.getItemName(), info.getItemTier(), info.getItemIconURL()));
+        try {
+            BaseItemInfo[] itemInfos = api.getItems(Language.ENGLISH.getLanguageID());
+            for (BaseItemInfo info : itemInfos) {
+                updateService.updateItem(new BaseItemName(info.getItemID(), info.getItemName(), info.getItemTier(), info.getItemIconURL()));
+            }
+        } catch (EntityNotFoundException e) {
+            LOGGER.log(Level.INFO, "Could not access items, session or request cap reached or, connection to API is down");
         }
     }
 
     private double getVersion() {
-        PatchInfo[] patchInfos = api.getPatchInfo();
-        if (patchInfos == null)
+        try {
+            PatchInfo[] patchInfos = api.getPatchInfo();
+            return SessionUtils.parseSingleEntry(patchInfos).getVersion();
+        } catch (EntityNotFoundException e) {
             throw new PatchNotFoundException();
-        return SessionUtils.parseSingleEntry(patchInfos).getVersion();
+        }
     }
 
     public <T extends DailyGodData> T configureGodData(PlayerMatchData playerMatchData, T data) {

@@ -6,12 +6,15 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.lang.reflect.Array;
+import java.lang.reflect.InvocationTargetException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.sql.SQLDataException;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -163,10 +166,10 @@ public class SessionUtils {
     }
 
     // Will parse JSON data, regardless of whether it is a JSON array or object
-    public static <T> T parseJSONData(Class<T> responseType, String data) {
+    public static <T> T parseJSONData(Class<T> responseType, String data) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
         try {
-            ObjectMapper mapper = new ObjectMapper();
-            mapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
             return mapper.readValue(data, responseType);
         } catch (JsonParseException e) {
             LOGGER.log(Level.WARNING, "Encountered a parsing error");
@@ -175,7 +178,11 @@ public class SessionUtils {
             LOGGER.log(Level.WARNING, "Encountered a processing error");
             e1.printStackTrace();
         }
-        throw new NullPointerException();
+        if (responseType.isArray()) {
+            Class<?> componentType = responseType.getComponentType();
+            return (T) Array.newInstance(componentType, 0);
+        }
+        return responseType.getDeclaredConstructor().newInstance();
     }
 
     public static <T> T[] appendArray(T[] arr1, T[] arr2) {
