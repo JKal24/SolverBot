@@ -134,7 +134,7 @@ public class SessionUtils {
             compareHours++;
         }
 
-        int currentHours = customTimeTrim(currentTimeArr[0]);
+        int currentHours = customTimeTrim(currentTimeArr[0]) % 12;
         int currentMinutes = customTimeTrim(currentTimeArr[1]);
         int currentSeconds = customTimeTrim(currentTimeArr[2]);
         String currentAMorPM = customAMOrPM(currentTimeArr[3]);

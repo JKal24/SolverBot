@@ -208,7 +208,7 @@ public class MatchParserService {
                 godNameRepository.save(new GodName(godID, info.getName()));
             }
         } catch (EntityNotFoundException e) {
-            LOGGER.log(Level.INFO, "Could not access items, session or request cap reached or, connection to API is down");
+            LOGGER.log(Level.INFO, "Could not access gods, session or request cap reached or, connection to API is down");
         }
 
         try {
