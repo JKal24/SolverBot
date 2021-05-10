@@ -47,7 +47,7 @@ public class SessionUtils {
 
     public static boolean verifySession(String pastDate, String pastTime) {
         String[] currentTimeStamp = SessionUtils.makeSignatureTimeStamp().split(" ");
-        if (compareDate(currentTimeStamp[0], pastDate, 0)) {
+        if (compareDate(currentTimeStamp[0], pastDate)) {
             return compareTime(currentTimeStamp[1], pastTime, 15);
         }
         return false;
@@ -93,7 +93,7 @@ public class SessionUtils {
         return date.format(formatterUTC);
     }
 
-    public static Boolean compareDate(String currentDate, String pastDate, int daysBetween) {
+    public static Boolean compareDate(String currentDate, String pastDate) {
         String[] currentDateArr = currentDate.split("/");
         int currentMonth = getDateAttribute(currentDateArr[0]);
         int currentDay = getDateAttribute(currentDateArr[1]);
@@ -104,7 +104,7 @@ public class SessionUtils {
         int pastDay = getDateAttribute(pastDateArr[1]);
         int pastYear = getDateAttribute(pastDateArr[2]);
 
-        return pastMonth == currentMonth && pastYear == currentYear && (pastDay + daysBetween) == currentDay;
+        return pastMonth == currentMonth && pastYear == currentYear && pastDay == currentDay;
     }
 
     private static int getDateAttribute(String val) {
@@ -125,32 +125,40 @@ public class SessionUtils {
         int compareHours = customTimeTrim(pastTimeArr[0]);
         int compareMinutes = customTimeTrim(pastTimeArr[1]);
         int compareSeconds = customTimeTrim(pastTimeArr[2]);
-        String AMOrPM = customAMOrPM(pastTimeArr[3]);
+        String compareAMorPM = customAMOrPM(pastTimeArr[3]);
 
         if (compareMinutes < (60 - timeBetween)) {
             compareMinutes += timeBetween;
-            compareHours %= 12;
         } else {
             compareMinutes = (compareMinutes + timeBetween) % 60;
-            compareHours = (compareHours + 1) % 12;
+            compareHours++;
         }
 
+        int currentHours = customTimeTrim(currentTimeArr[0]);
+        int currentMinutes = customTimeTrim(currentTimeArr[1]);
+        int currentSeconds = customTimeTrim(currentTimeArr[2]);
+        String currentAMorPM = customAMOrPM(currentTimeArr[3]);
+
         // Compares hours, must be equal after changes and AM or PM
-        if (compareHours == customTimeTrim(currentTimeArr[0]) % 12 && AMOrPM.equals(customAMOrPM(currentTimeArr[3]))) {
+        if (compareHours == currentHours && compareAMorPM.equals(currentAMorPM)) {
 
             // Evaluate the amount of minutes left before expiring
-            if (compareMinutes > customTimeTrim(currentTimeArr[1])) {
+            if (compareMinutes > currentMinutes) {
 
                 return true;
-            } else if (compareMinutes == customTimeTrim(currentTimeArr[1])) {
+            } else if (compareMinutes == currentMinutes) {
 
                 // Evaluate the amount of seconds left before expiring, must have at least 5 seconds to spare
                 compareSeconds = compareSeconds > 55 ? -1 : compareSeconds + 5;
-                return compareSeconds > customTimeTrim(currentTimeArr[2]);
+                return compareSeconds > currentSeconds;
             }
         }
 
-        return false;
+        return compareHours > currentHours;
+    }
+
+    public static Boolean compareTime(String currentTime, String pastTime) {
+        return SessionUtils.compareTime(currentTime, pastTime, 15);
     }
 
     private static String[] sliceTimeArr(String time) {

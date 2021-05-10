@@ -7,10 +7,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import java.lang.reflect.InvocationTargetException;
-import java.sql.SQLDataException;
 import java.util.Arrays;
-import java.util.Optional;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
@@ -39,7 +36,7 @@ public class Commands {
     }
 
     // Sessions are created independently
-    public String createSession(RestTemplate template) {
+    private String createSession(RestTemplate template) {
         String timeStamp = SessionUtils.makeAPITimeStamp();
         String createSessionRequest = SessionUtils.makeRequestUri(apiUri, "createsessionJson", devID,
                 SessionUtils.makeSignature("createsession", timeStamp, devID, authKey), timeStamp);
@@ -94,20 +91,20 @@ public class Commands {
         return apiUri;
     }
 
-    public void setApiUri(String apiUri) {
-        this.apiUri = apiUri;
-    }
-
     public String getDevID() {
         return devID;
     }
 
-    public void setDevID(String devID) {
-        this.devID = devID;
-    }
-
     public String getAuthKey() {
         return authKey;
+    }
+
+    public void setApiUri(String apiUri) {
+        this.apiUri = apiUri;
+    }
+
+    public void setDevID(String devID) {
+        this.devID = devID;
     }
 
     public void setAuthKey(String authKey) {
