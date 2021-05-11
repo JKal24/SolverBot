@@ -8,6 +8,7 @@ class SmiteSolverApplicationTests {
 
 	@Test
 	void contextLoads() {
+
 	}
 
 }

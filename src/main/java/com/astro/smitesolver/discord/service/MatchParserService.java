@@ -150,7 +150,7 @@ public class MatchParserService {
 
                 if (name.isPresent()) {
 
-                    if (playerMatchData.getRankStatConquest() < utils.HIGH_MMR_BOUNDARY) {
+                    if (playerMatchData.getRankStatConquest() > utils.HIGH_MMR_BOUNDARY) {
                         data = godDataHighMMRMap.containsKey(key) ? godDataHighMMRMap.get(key) :
                                 new DailyGodDataHighMMR(date, key, name.get().getGodName());
                         godDataHighMMRMap.put(key, (DailyGodDataHighMMR) configureGodData(playerMatchData, data));
