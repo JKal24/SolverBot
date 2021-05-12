@@ -33,6 +33,7 @@ build/
 .vscode/
 
 ### Custom files ###
-init
 application.properties
 Dockerfile
+init/
+resources/
