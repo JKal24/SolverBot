@@ -127,6 +127,11 @@ public class SessionUtils {
         int compareSeconds = customTimeTrim(pastTimeArr[2]);
         String compareAMorPM = customAMOrPM(pastTimeArr[3]);
 
+        if (compareHours >= 12) {
+            compareAMorPM = customAMOrPM("PM");
+            compareHours %= 12;
+        }
+
         if (compareMinutes < (60 - timeBetween)) {
             compareMinutes += timeBetween;
         } else {
@@ -134,10 +139,15 @@ public class SessionUtils {
             compareHours++;
         }
 
-        int currentHours = customTimeTrim(currentTimeArr[0]) % 12;
+        int currentHours = customTimeTrim(currentTimeArr[0]);
         int currentMinutes = customTimeTrim(currentTimeArr[1]);
         int currentSeconds = customTimeTrim(currentTimeArr[2]);
         String currentAMorPM = customAMOrPM(currentTimeArr[3]);
+
+        if (currentHours >= 12) {
+            currentAMorPM = customAMOrPM("PM");
+            currentHours %= 12;
+        }
 
         // Compares hours, must be equal after changes and AM or PM
         if (compareHours == currentHours && compareAMorPM.equals(currentAMorPM)) {
@@ -154,7 +164,7 @@ public class SessionUtils {
             }
         }
 
-        return compareHours > currentHours;
+        return compareHours > currentHours && currentAMorPM.equals(compareAMorPM);
     }
 
     public static Boolean compareTime(String currentTime, String pastTime) {
