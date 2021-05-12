@@ -33,7 +33,6 @@ build/
 .vscode/
 
 application.properties
-*.properties
 Dockerfile
 init/
 resources/
