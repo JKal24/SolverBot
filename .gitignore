@@ -32,7 +32,8 @@ build/
 ### VS Code ###
 .vscode/
 
-/application.properties
+application.properties
+*.properties
 Dockerfile
 init/
 resources/
