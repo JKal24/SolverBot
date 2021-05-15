@@ -191,10 +191,8 @@ public class SessionUtils {
             return mapper.readValue(data, responseType);
         } catch (JsonParseException e) {
             LOGGER.log(Level.WARNING, "Encountered a parsing error");
-            e.printStackTrace();
         } catch (JsonProcessingException e1) {
             LOGGER.log(Level.WARNING, "Encountered a processing error");
-            e1.printStackTrace();
         }
         if (responseType.isArray()) {
             Class<?> componentType = responseType.getComponentType();

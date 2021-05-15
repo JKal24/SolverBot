@@ -5,9 +5,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.UnknownContentTypeException;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
@@ -41,10 +43,15 @@ public class Commands {
         String createSessionRequest = SessionUtils.makeRequestUri(apiUri, "createsessionJson", devID,
                 SessionUtils.makeSignature("createsession", timeStamp, devID, authKey), timeStamp);
 
-        SessionInfo info = template.getForObject(createSessionRequest, SessionInfo.class);
-        sessionService.addConnection(info);
-        assert info != null;
-        return info.getSession_id();
+        try {
+            SessionInfo info = template.getForObject(createSessionRequest, SessionInfo.class);
+            sessionService.addConnection(info);
+            assert info != null;
+            return info.getSession_id();
+        } catch (UnknownContentTypeException e) {
+            LOGGER.log(Level.INFO, "Could not access API");
+        }
+        return "-1";
     }
 
     public String getSessionID() {

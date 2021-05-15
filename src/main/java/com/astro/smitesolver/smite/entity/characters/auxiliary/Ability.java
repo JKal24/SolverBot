@@ -65,12 +65,9 @@ public class Ability {
 
     @Override
     public String toString() {
-        return "Ability{" +
-                "cooldown='" + cooldown + '\'' +
-                ", cost='" + cost + '\'' +
-                ", description='" + description + '\'' +
-                ", abilityType=" + abilityType +
-                ", abilityDamage=" + abilityDamage +
-                '}';
+        return "Cooldown='" + cooldown + '\'' +
+                ", Cost='" + cost + '\'' +
+                ", Description='" + description + '\'' +
+                abilityType + abilityDamage;
     }
 }

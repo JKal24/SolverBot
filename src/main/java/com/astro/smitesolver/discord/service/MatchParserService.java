@@ -56,9 +56,6 @@ public class MatchParserService {
     @Autowired
     private DataCompilationService dataCompilationService;
 
-    @Autowired
-    private GodNameRepository godNameRepository;
-
     @PostConstruct
     private void initializeAPI() {
         api.setCredentials(apiUri, devID, authKey);
@@ -112,7 +109,7 @@ public class MatchParserService {
             // after the stats are built up for every copied god, the data will be inputted into the DailyGodDataRepository.
             for (PlayerMatchData playerMatchData : matchInfo) {
                 Integer key = playerMatchData.getGodID();
-                Optional<GodName> name = godNameRepository.findById(key);
+                Optional<GodName> name = updateService.findGod(key);
                 DailyGodData data;
 
                 // For every unique match, create ban data for gods
@@ -121,7 +118,7 @@ public class MatchParserService {
                     // Builds up ban data for playable gods
                     for (Integer bannedGodID : getBannedGodIDs(currentPlayerData)) {
                         DailyGodData bannedGodData;
-                        Optional<GodName> bannedGodName = godNameRepository.findById(bannedGodID);
+                        Optional<GodName> bannedGodName = updateService.findGod(bannedGodID);
 
                         if (bannedGodName.isPresent()) {
 
@@ -203,21 +200,12 @@ public class MatchParserService {
     public void updateResources() {
         try {
             GodInfo[] godList = api.getGods(Language.ENGLISH.getLanguageID());
-            for (GodInfo info : godList) {
-                Integer godID = info.getGodID();
-                godNameRepository.save(new GodName(godID, info.getName()));
-            }
-        } catch (EntityNotFoundException e) {
-            LOGGER.log(Level.INFO, "Could not access gods, session or request cap reached or, connection to API is down");
-        }
-
-        try {
             BaseItemInfo[] itemInfos = api.getItems(Language.ENGLISH.getLanguageID());
-            for (BaseItemInfo info : itemInfos) {
-                updateService.updateItem(new BaseItemName(info.getItemID(), info.getItemName(), info.getItemTier(), info.getItemIconURL()));
-            }
+
+            updateService.processUpdatedResources(godList, itemInfos);
+
         } catch (EntityNotFoundException e) {
-            LOGGER.log(Level.INFO, "Could not access items, session or request cap reached or, connection to API is down");
+            LOGGER.log(Level.INFO, "Could not access resources, session or request cap reached or, connection to API is down");
         }
     }
 

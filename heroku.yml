@@ -1,0 +1,4 @@
+build:
+  docker:
+    smite: Dockerfile
+    sql: sql/Dockerfile

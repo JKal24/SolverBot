@@ -26,9 +26,9 @@ public class Description {
 
     @Override
     public String toString() {
-        return "Description{" +
-                "description='" + description + '\'' +
-                ", value='" + value + '\'' +
-                '}';
+        return "[" +
+                "Description='" + description + '\'' +
+                ", Value='" + value + '\'' +
+                ']';
     }
 }

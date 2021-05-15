@@ -13,13 +13,10 @@ public class BaseItemName {
 
     private Integer itemTier;
 
-    private String itemIconURL;
-
-    public BaseItemName(int itemID, String itemName, Integer itemTier, String itemIconURL) {
+    public BaseItemName(int itemID, String itemName, Integer itemTier) {
         this.itemID = itemID;
         this.itemName = itemName;
         this.itemTier = itemTier;
-        this.itemIconURL = itemIconURL;
     }
 
     public BaseItemName() { }
@@ -46,13 +43,5 @@ public class BaseItemName {
 
     public void setItemTier(Integer itemTier) {
         this.itemTier = itemTier;
-    }
-
-    public String getItemIconURL() {
-        return itemIconURL;
-    }
-
-    public void setItemIconURL(String itemIconURL) {
-        this.itemIconURL = itemIconURL;
     }
 }

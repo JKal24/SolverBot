@@ -2,11 +2,16 @@ package com.astro.smitesolver.events;
 
 import com.astro.smitesolver.exception.CommandNotFoundException;
 import discord4j.core.event.domain.message.MessageCreateEvent;
+import discord4j.core.object.entity.Guild;
+import discord4j.core.object.entity.Member;
 import discord4j.core.object.entity.Message;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -29,6 +34,10 @@ public class MessageEventListener implements EventListener<MessageCreateEvent> {
                 .flatMap(Message::getChannel)
                 .flatMap(messageChannel -> {
                     try {
+                        List<Member> members = new ArrayList<>();
+                        event.getGuild().subscribe(guild -> {
+                            members.add(guild.getOwner().block());
+                        });
                         return messageChannel.createMessage(
                                 processor.processSolverEvent(message.getContent().substring(2)));
                     } catch (CommandNotFoundException e) {

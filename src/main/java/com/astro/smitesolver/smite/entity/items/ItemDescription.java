@@ -43,10 +43,8 @@ public class ItemDescription {
 
     @Override
     public String toString() {
-        return "ItemDescription{" +
-                "description='" + description + '\'' +
-                ", itemAttributeList=" + itemAttributeList +
-                ", secondaryDescription='" + secondaryDescription + '\'' +
-                '}';
+        return "Description=" + description +
+                ", Item Attributes=" + itemAttributeList +
+                ", Effect='" + secondaryDescription;
     }
 }

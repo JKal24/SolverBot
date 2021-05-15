@@ -1,16 +1,16 @@
 package com.astro.smitesolver.discord.service;
 
-import com.astro.smitesolver.discord.entity.auxillary.BaseItemName;
-import com.astro.smitesolver.discord.entity.auxillary.UpdateData;
-import com.astro.smitesolver.discord.repository.GodNameRepository;
-import com.astro.smitesolver.discord.repository.ItemNameRepository;
-import com.astro.smitesolver.discord.repository.UpdateRepository;
+import com.astro.smitesolver.discord.entity.auxillary.*;
+import com.astro.smitesolver.discord.repository.*;
+import com.astro.smitesolver.smite.entity.characters.GodInfo;
+import com.astro.smitesolver.smite.entity.items.BaseItemInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UpdateService {
@@ -26,6 +26,12 @@ public class UpdateService {
     @Autowired
     private ItemNameRepository itemNameRepository;
 
+    @Autowired
+    private GodDataRepository godDataRepository;
+
+    @Autowired
+    private ItemDataRepository itemDataRepository;
+
     /**
      * @param date this is the date of when the data was updated
      * @param versionID this is the version which was recorded on the day the update went live,
@@ -40,8 +46,25 @@ public class UpdateService {
         updateRepository.save(data);
     }
 
-    public void updateItem(BaseItemName baseItemName) {
-        itemNameRepository.save(baseItemName);
+    public Optional<BaseItemName> findItem(int itemID) {
+        return itemNameRepository.findById(itemID);
+    }
+
+    public Optional<GodName> findGod(int godID) {
+        return godNameRepository.findById(godID);
+    }
+
+    public void processUpdatedResources(GodInfo[] godList, BaseItemInfo[] itemList) {
+        for (GodInfo info : godList) {
+            godNameRepository.save(new GodName(info.getGodID(), info.getName()));
+            godDataRepository.save(new GodData(info));
+        }
+
+        for (BaseItemInfo info : itemList) {
+            itemNameRepository.save(new BaseItemName(info.getItemID(), info.getItemName(), info.getItemTier()));
+            itemDataRepository.save(new BaseItemData(info));
+        }
+
     }
 
     public List<BaseItemName> getUpdatedItemList() {
