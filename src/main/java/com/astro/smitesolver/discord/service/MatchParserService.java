@@ -11,7 +11,6 @@ import com.astro.smitesolver.discord.entity.dailydata.DailyGodDataLowMMR;
 import com.astro.smitesolver.exception.EntityNotFoundException;
 import com.astro.smitesolver.exception.PatchNotFoundException;
 import com.astro.smitesolver.exception.UpdateDataException;
-import com.astro.smitesolver.discord.repository.GodNameRepository;
 import com.astro.smitesolver.smite.entity.characters.GodInfo;
 import com.astro.smitesolver.smite.entity.gamedata.PatchInfo;
 import com.astro.smitesolver.smite.entity.gamedata.matches.MatchInfo;
@@ -165,7 +164,8 @@ public class MatchParserService {
 
         }
 
-        dataCompilationService.compileGodData(godDataHighMMRMap, godDataLowMMRMap, matchCountHighMMR, matchCountLowMMR);
+        dataCompilationService.configureGodData(godDataHighMMRMap, godDataLowMMRMap, matchCountHighMMR, matchCountLowMMR);
+        dataCompilationService.configureLeaderboards();
         dataCompilationService.configureMatchData(date, matchCountHighMMR, matchCountLowMMR);
     }
 

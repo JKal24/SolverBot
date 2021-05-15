@@ -1,36 +1,25 @@
 package com.astro.smitesolver.discord.entity.totaldata;
 
-import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.MappedSuperclass;
 
-@Entity(name = "ban_rate_ranking")
+@MappedSuperclass
 public class BanRateRanking {
 
     @Id
-    private Integer ranking;
-
     private Integer godID;
 
     private String godName;
 
     private double banRate;
 
-    public BanRateRanking(Integer rank, Integer godID, String godName, double banRate) {
-        this.ranking = rank;
+    public BanRateRanking(Integer godID, String godName, double banRate) {
         this.godID = godID;
         this.godName = godName;
         this.banRate = banRate;
     }
 
     public BanRateRanking() { }
-
-    public Integer getRank() {
-        return ranking;
-    }
-
-    public void setRank(Integer rank) {
-        this.ranking = rank;
-    }
 
     public Integer getGodID() {
         return godID;
@@ -55,4 +44,5 @@ public class BanRateRanking {
     public void setBanRate(double banRate) {
         this.banRate = banRate;
     }
+
 }

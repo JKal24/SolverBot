@@ -46,14 +46,6 @@ public class UpdateService {
         updateRepository.save(data);
     }
 
-    public Optional<BaseItemName> findItem(int itemID) {
-        return itemNameRepository.findById(itemID);
-    }
-
-    public Optional<GodName> findGod(int godID) {
-        return godNameRepository.findById(godID);
-    }
-
     public void processUpdatedResources(GodInfo[] godList, BaseItemInfo[] itemList) {
         for (GodInfo info : godList) {
             godNameRepository.save(new GodName(info.getGodID(), info.getName()));
@@ -116,5 +108,21 @@ public class UpdateService {
             }
         }
     }
+
+    public Optional<BaseItemName> findItem(int itemID) {
+        return itemNameRepository.findById(itemID);
+    }
+
+    public Optional<GodName> findGod(int godID) {
+        return godNameRepository.findById(godID);
+    }
+
+    public List<BaseItemName> getItems() { return itemNameRepository.findAll(); }
+
+    public List<GodName> getGods() { return godNameRepository.findAll(); }
+
+    public List<BaseItemData> getItemData() { return itemDataRepository.findAll(); }
+
+    public List<GodData> getGodData() { return godDataRepository.findAll(); }
 
 }

@@ -4,10 +4,7 @@ import com.astro.smitesolver.discord.entity.auxillary.GodName;
 import com.astro.smitesolver.discord.entity.dailydata.DailyGodData;
 import com.astro.smitesolver.discord.entity.dailydata.DailyGodDataHighMMR;
 import com.astro.smitesolver.discord.entity.dailydata.DailyGodDataLowMMR;
-import com.astro.smitesolver.discord.entity.totaldata.MatchRecordedData;
-import com.astro.smitesolver.discord.entity.totaldata.TotalGodData;
-import com.astro.smitesolver.discord.entity.totaldata.TotalGodDataHighMMR;
-import com.astro.smitesolver.discord.entity.totaldata.TotalGodDataLowMMR;
+import com.astro.smitesolver.discord.entity.totaldata.*;
 import com.astro.smitesolver.exception.GodNotFoundException;
 import com.astro.smitesolver.discord.repository.*;
 import com.astro.smitesolver.discord.repository.RecordedMatchRepository;
@@ -44,12 +41,27 @@ public class DataCompilationService {
     private LowMMRPerformanceRepository lowMMRPerformanceRepository;
 
     @Autowired
-    private GodNameRepository godNameRepository;
+    private HighMMRBanRateRepository highMMRBanRateRepository;
+
+    @Autowired
+    private HighMMRPickRateRepository highMMRPickRateRepository;
+
+    @Autowired
+    private HighMMRWinRateRepository highMMRWinRateRepository;
+
+    @Autowired
+    private LowMMRBanRateRepository lowMMRBanRateRepository;
+
+    @Autowired
+    private LowMMRPickRateRepository lowMMRPickRateRepository;
+
+    @Autowired
+    private LowMMRWinRateRepository lowMMRWinRateRepository;
 
     @Autowired
     private UpdateService updateService;
 
-    public void compileGodData(Map<Integer, DailyGodDataHighMMR> highMMRMap, Map<Integer, DailyGodDataLowMMR> lowMMRMap, int highMMRMatchesCount, int lowMMRMatchesCount) {
+    public void configureGodData(Map<Integer, DailyGodDataHighMMR> highMMRMap, Map<Integer, DailyGodDataLowMMR> lowMMRMap, int highMMRMatchesCount, int lowMMRMatchesCount) {
         // Gets the totalMatches played for high and low mmr and filters by deletion date and new patch date
 
         LocalDate deletionDate = LocalDate.ofInstant(Instant.now(), ZoneId.of("UTC")).minusDays(UpdateService.DATA_DELETION_DAY_LIMIT);
@@ -77,7 +89,7 @@ public class DataCompilationService {
         deleteHighMMRGodData(deletionDate, patchDate, totalMatchesHighMMR, newPatchMatchesHighMMR);
         deleteLowMMRData(deletionDate, patchDate, totalMatchesLowMMR, newPatchMatchesLowMMR);
 
-        for (GodName godName : godNameRepository.findAll()) {
+        for (GodName godName : updateService.getGods()) {
             int godID = godName.getGodID();
 
             DailyGodDataHighMMR dataHighMMR = highMMRMap.get(godID);
@@ -98,11 +110,29 @@ public class DataCompilationService {
         }
     }
 
+    public void configureLeaderboards() {
+        for (TotalGodDataHighMMR data : highMMRPerformanceRepository.findAll()) {
+            highMMRWinRateRepository.save(new WinRateRankingHighMMR(data.getGodID(), data.getGodName(), data.getNewPatchWinRate()));
+            highMMRPickRateRepository.save(new PickRateRankingHighMMR(data.getGodID(), data.getGodName(), data.getNewPatchPickRate()));
+            highMMRBanRateRepository.save(new BanRateRankingHighMMR(data.getGodID(), data.getGodName(), data.getNewPatchBanRate()));
+        }
+
+        for (TotalGodDataLowMMR data : lowMMRPerformanceRepository.findAll()) {
+            lowMMRWinRateRepository.save(new WinRateRankingLowMMR(data.getGodID(), data.getGodName(), data.getNewPatchWinRate()));
+            lowMMRPickRateRepository.save(new PickRateRankingLowMMR(data.getGodID(), data.getGodName(), data.getNewPatchPickRate()));
+            lowMMRBanRateRepository.save(new BanRateRankingLowMMR(data.getGodID(), data.getGodName(), data.getNewPatchBanRate()));
+        }
+    }
+
+    public void configureMatchData(LocalDate date, Integer matchesPlayedHighMMR, Integer matchesPlayedLowMMR) {
+        recordedMatchRepository.save(new MatchRecordedData(date, matchesPlayedHighMMR, matchesPlayedLowMMR));
+    }
+
     public void addHighMMRGodData(int godID, DailyGodDataHighMMR dataHighMMR, int totalMatches, int newPatchMatches) {
         highMMRPerformanceRepository.findById(godID).ifPresentOrElse(godData -> {
             TotalGodDataHighMMR foundData = processAddedGodData(godData, dataHighMMR, totalMatches, newPatchMatches);
             highMMRPerformanceRepository.save(foundData);
-        }, () -> godNameRepository.findById(godID).ifPresentOrElse(name -> {
+        }, () -> updateService.findGod(godID).ifPresentOrElse(name -> {
                     try {
                         highMMRPerformanceRepository.save(processAddedGodData(new TotalGodDataHighMMR(godID, name.getGodName()),
                                 dataHighMMR, totalMatches, newPatchMatches));
@@ -120,7 +150,7 @@ public class DataCompilationService {
     public void addLowMMRGodData(int godID, DailyGodDataLowMMR dataLowMMR, int totalMatches, int newPatchMatches) {
         lowMMRPerformanceRepository.findById(godID).ifPresentOrElse(godData ->
                         lowMMRPerformanceRepository.save(processAddedGodData(godData, dataLowMMR, totalMatches, newPatchMatches)),
-                () -> godNameRepository.findById(godID).ifPresentOrElse(name -> {
+                () -> updateService.findGod(godID).ifPresentOrElse(name -> {
                             try {
                                 lowMMRPerformanceRepository.save(processAddedGodData(new TotalGodDataLowMMR(godID, name.getGodName()),
                                         dataLowMMR, totalMatches, newPatchMatches));
@@ -286,10 +316,6 @@ public class DataCompilationService {
 
     private double calcAdditionPercentageStat(double totalStat, int dailyTotal, int totalMatchesPlayed, double matchesAdded) {
         return ((totalStat * totalMatchesPlayed) + dailyTotal) / (totalMatchesPlayed + matchesAdded);
-    }
-
-    public void configureMatchData(LocalDate date, Integer matchesPlayedHighMMR, Integer matchesPlayedLowMMR) {
-        recordedMatchRepository.save(new MatchRecordedData(date, matchesPlayedHighMMR, matchesPlayedLowMMR));
     }
 
     private <T> Map<T, Integer> removeNameCountMap(Map<T, Integer> map, Set<Map.Entry<T, Integer>> entrySet) {

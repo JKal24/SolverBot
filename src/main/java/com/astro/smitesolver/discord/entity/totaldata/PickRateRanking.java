@@ -1,35 +1,25 @@
 package com.astro.smitesolver.discord.entity.totaldata;
 
-import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.MappedSuperclass;
 
-@Entity(name = "pick_rate_ranking")
+@MappedSuperclass
 public class PickRateRanking {
 
     @Id
-    private Integer ranking;
-
     private Integer godID;
 
     private String godName;
 
     private double pickRate;
 
-    public PickRateRanking(Integer rank, Integer godID, String godName, double pickRate) {
-        this.ranking = rank;
+    public PickRateRanking(Integer godID, String godName, double pickRate) {
         this.godID = godID;
         this.godName = godName;
         this.pickRate = pickRate;
     }
 
-    public PickRateRanking() { }
-
-    public Integer getRank() {
-        return ranking;
-    }
-
-    public void setRank(Integer rank) {
-        this.ranking = rank;
+    public PickRateRanking() {
     }
 
     public Integer getGodID() {
