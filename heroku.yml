@@ -1,0 +1,20 @@
+setup:
+  config:
+    DISCORD_TOKEN: ODI2NjU4Njc5ODI2Mjg0NTg0.YGPr4w.qckS8wq4MOBuBYQmdkHbzOaXkJg
+    SMITE_API:https: //api.smitegame.com/smiteapi.svc
+    SMITE_DEV_ID: 3665
+    SMITE_AUTH_KEY: D328B92A2C9A44FCB01854A300ACE310
+    SMITE_ACC: Ovenfresh
+    SESSION_DATASOURCE_JDBC_URL: jdbc:mysql://localhost:3306/smite_session
+    SMITE_DATASOURCE_JDBC_URL: jdbc:mysql://localhost:3306/smite_api
+    DATASOURCE_USERNAME: jask24
+    DATASOURCE_PASSWORD: Brave99_
+    SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    DATASOURCE_DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
+    DATASOURCE_DIALECT: org.hibernate.dialect.MySQL8Dialect
+    DATASOURCE_SHOW_SQL: true
+
+build:
+  docker:
+    smite: Dockerfile
+    sql: sql/Dockerfile
