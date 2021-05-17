@@ -9,13 +9,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.LocalDateTime;
 
-@SpringBootTest
 public class SessionTests {
 
     @Autowired
     private SessionService sessionService;
 
-    @Test
     public void testCustomSession1() {
         LocalDateTime currentDateTime = LocalDateTime.of(2021, 1, 1, 10, 45, 05);
         LocalDateTime prevDateTime = LocalDateTime.of(2021, 1, 1, 10, 59, 55);
@@ -30,7 +28,6 @@ public class SessionTests {
         Assertions.assertTrue(SessionUtils.compareTime(time1, time2));
     }
 
-    @Test
     public void testCustomSession2() {
         LocalDateTime currentDateTime = LocalDateTime.of(2021, 1, 1, 10, 48, 05);
         LocalDateTime prevDateTime = LocalDateTime.of(2021, 1, 1, 11, 01, 55);
@@ -45,7 +42,6 @@ public class SessionTests {
         Assertions.assertTrue(SessionUtils.compareTime(time1, time2));
     }
 
-    @Test
     public void testCustomSession3() {
         LocalDateTime currentDateTime = LocalDateTime.of(2021, 1, 1, 11, 01, 55);
         LocalDateTime prevDateTime = LocalDateTime.of(2021, 1, 1, 10, 48, 05);
@@ -60,7 +56,6 @@ public class SessionTests {
         Assertions.assertTrue(SessionUtils.compareTime(time1, time2));
     }
 
-    @Test
     public void testCustomSession4() {
         LocalDateTime currentDateTime = LocalDateTime.of(2021, 2, 1, 13, 01, 55);
         LocalDateTime prevDateTime = LocalDateTime.of(2021, 1, 1, 10, 48, 05);
@@ -75,7 +70,6 @@ public class SessionTests {
         Assertions.assertFalse(SessionUtils.compareTime(time1, time2));
     }
 
-    @Test
     public void testCustomSession5() {
         LocalDateTime currentDateTime = LocalDateTime.of(2020, 1, 1, 13, 01, 55);
         LocalDateTime prevDateTime = LocalDateTime.of(2021, 1, 1, 10, 48, 05);
@@ -90,7 +84,6 @@ public class SessionTests {
         Assertions.assertFalse(SessionUtils.compareTime(time1, time2));
     }
 
-    @Test
     public void testCustomSession6() {
         LocalDateTime currentDateTime = LocalDateTime.of(2021, 1, 3, 17, 01, 55);
         LocalDateTime prevDateTime = LocalDateTime.of(2021, 2, 1, 13, 48, 05);
@@ -105,7 +98,6 @@ public class SessionTests {
         Assertions.assertFalse(SessionUtils.compareTime(time1, time2));
     }
 
-    @Test
     public void testCustomSession7() {
         LocalDateTime currentDateTime = LocalDateTime.of(2021, 1, 1, 12, 01, 55);
         LocalDateTime prevDateTime = LocalDateTime.of(2019, 3, 2, 11, 48, 05);
