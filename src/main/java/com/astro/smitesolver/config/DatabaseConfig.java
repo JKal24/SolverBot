@@ -1,9 +1,9 @@
 package com.astro.smitesolver.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
@@ -19,19 +19,21 @@ import java.util.HashMap;
 @Configuration
 @PropertySource("classpath:application.properties")
 @EnableJpaRepositories(
-        basePackages = "com.astro.smitesolver.smite.repository",
-        entityManagerFactoryRef = "sessionEntityManager",
-        transactionManagerRef = "sessionTransactionManager"
+        basePackages = {"com.astro.smitesolver.discord.repository", "com.astro.smitesolver.smite.repository"},
+        entityManagerFactoryRef = "databaseEntityManager",
+        transactionManagerRef = "databaseTransactionManager"
 )
-public class SessionConfig {
+public class DatabaseConfig {
     @Autowired
     private Environment env;
 
+    @Primary
     @Bean
-    public LocalContainerEntityManagerFactoryBean sessionEntityManager() {
+    public LocalContainerEntityManagerFactoryBean databaseEntityManager() {
         LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
-        em.setDataSource(sessionDataSource());
-        em.setPackagesToScan("com.astro.smitesolver.smite.entity.session");
+        em.setDataSource(databaseDataSource());
+        em.setPackagesToScan("com.astro.smitesolver.discord.entity.auxillary", "com.astro.smitesolver.discord.entity.dailydata",
+                "com.astro.smitesolver.discord.entity.totaldata", "com.astro.smitesolver.smite.entity.session");
 
         HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
         em.setJpaVendorAdapter(vendorAdapter);
@@ -44,11 +46,11 @@ public class SessionConfig {
         return em;
     }
 
+    @Primary
     @Bean
-    @ConfigurationProperties("com.astro.smitesolver.smite.entity.session")
-    public DataSource sessionDataSource() {
+    public DataSource databaseDataSource() {
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
-        dataSource.setUrl(env.getProperty("session.datasource.jdbcUrl"));
+        dataSource.setUrl(env.getProperty("smite.datasource.jdbcUrl"));
         dataSource.setUsername(env.getProperty("datasource.username"));
         dataSource.setPassword(env.getProperty("datasource.password"));
         dataSource.setDriverClassName(env.getProperty("datasource.driverClassName"));
@@ -56,11 +58,11 @@ public class SessionConfig {
         return dataSource;
     }
 
+    @Primary
     @Bean
-    public PlatformTransactionManager sessionTransactionManager() {
+    public PlatformTransactionManager databaseTransactionManager() {
         JpaTransactionManager transactionManager = new JpaTransactionManager();
-        transactionManager.setEntityManagerFactory(sessionEntityManager().getObject());
-
+        transactionManager.setEntityManagerFactory(databaseEntityManager().getObject());
         return transactionManager;
     }
 }

@@ -19,19 +19,16 @@ public class MessageProcessor {
     private SolverBot bot;
 
     public String processSolverEvent(String fullCommand) throws CommandNotFoundException {
-        if (isUpdating) return "Currently performing maintenance procedures!";
+        if (isUpdating) return "Currently performing maintenance procedures.";
 
         String[] commands = fullCommand.split(" ");
         String command = commands[0];
 
         // Getting god data event
         if (command.equals(Commands.stats.name())) {
-            TotalGodData totalGodData;
-            if (commands[commands.length - 1].equals(Commands.low.name())) {
-                totalGodData = bot.getRequestedGod(commands[1], false);
-            } else {
-                totalGodData = bot.getRequestedGod(commands[1], true);
-            }
+            boolean isLow = commands[commands.length - 1].equals(Commands.low.name());
+            TotalGodData totalGodData = bot.getRequestedGod(commands[1], !isLow);
+
             if (totalGodData == null) {
                 return "No data available for, " + commands[1];
             }
@@ -72,21 +69,41 @@ public class MessageProcessor {
                 selectFour--;
             }
             return stringBuilder.toString();
-        }  else if (command.equals(Commands.update.name())) {
+
+        } else if (command.equals(Commands.winrate.name())) {
+            boolean isLow = commands[commands.length - 1].equals(Commands.low.name());
+            return bot.getWinRateLeaderboard(!isLow).toString();
+
+        } else if (command.equals(Commands.pickrate.name())) {
+            boolean isLow = commands[commands.length - 1].equals(Commands.low.name());
+            return bot.getPickRateLeaderboard(!isLow).toString();
+
+        } else if (command.equals(Commands.banrate.name())) {
+            boolean isLow = commands[commands.length - 1].equals(Commands.low.name());
+            return bot.getBanRateLeaderboard(!isLow).toString();
+
+        } else if (command.equals(Commands.update.name())) {
             isUpdating = true;
             int numDays = Integer.parseInt(commands[1]);
             bot.requestUpdate(numDays);
             isUpdating = false;
             return "Update maintenance is complete!";
-        } else {
+
+        } else if (command.equals(Commands.help.name())) {
             return "Here are the available commands: \n" +
                     "\n" +
                     "   -stats: s!stats <god name> <low*>\n" +
                     "   -update: s!update <number of days*>\n" +
+                    "   -winrate: s!winrate <low*>" +
+                    "   -pickrate: s!pickrate <low*>" +
+                    "   -banrate: s!banrate <low*>" +
                     "\n" +
                     "    *low sets the data to give only low mmr information\n" +
+                    "      default is high mmr information" +
                     "    *number of days must be at least 1 but less than or equal to 30\n";
+
         }
+        return "";
     }
 
 }

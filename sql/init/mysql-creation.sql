@@ -1,0 +1,2 @@
+CREATE DATABASE IF NOT EXISTS `smite_api`;
+CREATE DATABASE IF NOT EXISTS `smite_session`;

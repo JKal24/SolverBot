@@ -1,9 +1,12 @@
 package com.astro.smitesolver.utils;
 
 public enum Commands {
-
+    help,
     stats,
     low,
-    update
+    update,
+    winrate,
+    pickrate,
+    banrate
 
 }
