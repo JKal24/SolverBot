@@ -1,3 +1,6 @@
 build:
   docker:
     worker: Dockerfile
+
+run:
+  worker: java -jar smite-solver-0.0.1-SNAPSHOT.jar
