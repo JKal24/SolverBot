@@ -4,7 +4,9 @@ import com.astro.smitesolver.bot.SolverBot;
 import com.astro.smitesolver.discord.entity.auxillary.Item;
 import com.astro.smitesolver.discord.entity.totaldata.TotalGodData;
 import com.astro.smitesolver.exception.CommandNotFoundException;
+import com.astro.smitesolver.exception.GodNotFoundException;
 import com.astro.smitesolver.utils.Commands;
+import discord4j.core.spec.EmbedCreateSpec;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -18,20 +20,43 @@ public class MessageProcessor {
     @Autowired
     private SolverBot bot;
 
-    public String processSolverEvent(String fullCommand) throws CommandNotFoundException {
+    public String getInfoName(String command) {
+        if (command.equals(Commands.stats.name())) {
+            return Commands.stats.getDescription();
+
+        } else if(command.equals(Commands.update.name())) {
+            return Commands.update.getDescription();
+
+        } else if(command.equals(Commands.winrate.name())) {
+            return Commands.winrate.getDescription();
+
+        } else if(command.equals(Commands.pickrate.name())) {
+            return Commands.pickrate.getDescription();
+
+        } else if(command.equals(Commands.banrate.name())) {
+            return Commands.banrate.getDescription();
+
+        } else {
+            return Commands.help.getDescription();
+
+        }
+    }
+
+    public String processSolverEvent(String... commands) {
         if (isUpdating) return "Currently performing maintenance procedures.";
 
-        String[] commands = fullCommand.split(" ");
         String command = commands[0];
 
         // Getting god data event
         if (command.equals(Commands.stats.name())) {
             boolean isLow = commands[commands.length - 1].equals(Commands.low.name());
-            TotalGodData totalGodData = bot.getRequestedGod(commands[1], !isLow);
-
-            if (totalGodData == null) {
-                return "No data available for, " + commands[1];
+            TotalGodData totalGodData;
+            try {
+                totalGodData = bot.getRequestedGod(commands[1].toLowerCase(), !isLow);
+            } catch (GodNotFoundException e) {
+                return e.getMessage();
             }
+
             StringBuilder stringBuilder = new StringBuilder();
 
             stringBuilder.append(totalGodData.getGodName());
@@ -85,25 +110,31 @@ public class MessageProcessor {
         } else if (command.equals(Commands.update.name())) {
             isUpdating = true;
             int numDays = Integer.parseInt(commands[1]);
-            bot.requestUpdate(numDays);
+            try {
+                bot.requestUpdate(numDays);
+            } catch (CommandNotFoundException e) {
+                return "Could not update data";
+            }
             isUpdating = false;
-            return "Update maintenance is complete!";
+            return "Update maintenance is complete";
 
-        } else if (command.equals(Commands.help.name())) {
+        } else {
             return "Here are the available commands: \n" +
                     "\n" +
-                    "   -stats: s!stats <god name> <low*>\n" +
-                    "   -update: s!update <number of days*>\n" +
-                    "   -winrate: s!winrate <low*>" +
-                    "   -pickrate: s!pickrate <low*>" +
-                    "   -banrate: s!banrate <low*>" +
+                    "   -stats: s!stats <god name> <low>\n" +
+                    "   -update: s!update <number of days>\n" +
                     "\n" +
-                    "    *low sets the data to give only low mmr information\n" +
-                    "      default is high mmr information" +
-                    "    *number of days must be at least 1 but less than or equal to 30\n";
+                    "   -winrate: s!winrate <low>\n" +
+                    "   -pickrate: s!pickrate <low>\n" +
+                    "   -banrate: s!banrate <low>\n" +
+                    "   ---displays leaderboard data\n" +
+                    "\n" +
+                    "    <low> sets the data to give only low mmr information\n" +
+                    "      ---default is high mmr information\n" +
+                    "\n" +
+                    "    <number of days> must be at least 1 but less than or equal to 30\n";
 
         }
-        return "";
     }
 
 }
