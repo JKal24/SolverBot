@@ -1,12 +1,13 @@
 package com.astro.smitesolver.bot;
 
-import com.astro.smitesolver.config.PickRateComparator;
 import com.astro.smitesolver.discord.entity.totaldata.*;
 import com.astro.smitesolver.discord.service.DataFetchingService;
 import com.astro.smitesolver.discord.repository.GodNameRepository;
 import com.astro.smitesolver.exception.CommandNotFoundException;
+import com.astro.smitesolver.exception.GodNotFoundException;
 import com.astro.smitesolver.exception.UpdateDataException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.InvalidDataAccessResourceUsageException;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
@@ -22,8 +23,12 @@ public class SolverBot {
     private GodNameRepository godNameRepository;
 
     public TotalGodData getRequestedGod(String name, boolean isHighMMR) {
-        int godID = godNameRepository.findByName(name).getGodID();
-        return dataFetchingService.getPerformanceData(godID, isHighMMR);
+        try {
+            int godID = godNameRepository.findByName(name).getGodID();
+            return dataFetchingService.getPerformanceData(godID, isHighMMR);
+        } catch (InvalidDataAccessResourceUsageException e) {
+            throw new GodNotFoundException("Could not find data for: " + name);
+        }
     }
 
     public List<? extends WinRateRanking> getWinRateLeaderboard(boolean highMMR) {
