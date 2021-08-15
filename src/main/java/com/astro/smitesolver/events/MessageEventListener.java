@@ -3,8 +3,11 @@ package com.astro.smitesolver.events;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.object.entity.Message;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
+
+import java.util.concurrent.ExecutionException;
 
 @Service
 public class MessageEventListener implements EventListener<MessageCreateEvent> {
@@ -28,7 +31,12 @@ public class MessageEventListener implements EventListener<MessageCreateEvent> {
                             .split(" ");
 
                     embedCreateSpec.setAuthor("Smite Solver :: Commands with s!", null, null);
-                    embedCreateSpec.addField(processor.getInfoName(commands[0]), processor.processSolverEvent(commands), false);
+
+                    try {
+                        embedCreateSpec.addField(processor.getInfoName(commands[0]), processor.processSolverEvent(commands).get(), false);
+                    } catch (InterruptedException | ExecutionException e) {
+                        embedCreateSpec.addField(processor.getInfoName(commands[0]), "Error accessing data", false);
+                    }
                 }))
                 .then();
     }

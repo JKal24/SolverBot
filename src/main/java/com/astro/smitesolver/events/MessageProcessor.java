@@ -8,14 +8,15 @@ import com.astro.smitesolver.exception.GodNotFoundException;
 import com.astro.smitesolver.utils.Commands;
 import discord4j.core.spec.EmbedCreateSpec;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Future;
 
 @Component
 public class MessageProcessor {
-
-    private boolean isUpdating = false;
 
     @Autowired
     private SolverBot bot;
@@ -42,10 +43,10 @@ public class MessageProcessor {
         }
     }
 
-    public String processSolverEvent(String... commands) {
-        if (isUpdating) return "Currently performing maintenance procedures.";
-
+    @Async
+    public Future<String> processSolverEvent(String... commands) {
         String command = commands[0];
+        CompletableFuture<String> completableFuture = new CompletableFuture<>();
 
         // Getting god data event
         if (command.equals(Commands.stats.name())) {
@@ -54,7 +55,8 @@ public class MessageProcessor {
             try {
                 totalGodData = bot.getRequestedGod(commands[1].toLowerCase(), !isLow);
             } catch (GodNotFoundException e) {
-                return e.getMessage();
+                completableFuture.complete(e.getMessage());
+                return completableFuture;
             }
 
             StringBuilder stringBuilder = new StringBuilder();
@@ -93,33 +95,31 @@ public class MessageProcessor {
                 stringBuilder.append("\n");
                 selectFour--;
             }
-            return stringBuilder.toString();
+            completableFuture.complete(stringBuilder.toString());
 
         } else if (command.equals(Commands.winrate.name())) {
             boolean isLow = commands[commands.length - 1].equals(Commands.low.name());
-            return bot.getWinRateLeaderboard(!isLow).toString();
+            completableFuture.complete(bot.getWinRateLeaderboard(!isLow).toString());
 
         } else if (command.equals(Commands.pickrate.name())) {
             boolean isLow = commands[commands.length - 1].equals(Commands.low.name());
-            return bot.getPickRateLeaderboard(!isLow).toString();
+            completableFuture.complete(bot.getPickRateLeaderboard(!isLow).toString());
 
         } else if (command.equals(Commands.banrate.name())) {
             boolean isLow = commands[commands.length - 1].equals(Commands.low.name());
-            return bot.getBanRateLeaderboard(!isLow).toString();
+            completableFuture.complete(bot.getBanRateLeaderboard(!isLow).toString());
 
         } else if (command.equals(Commands.update.name())) {
-            isUpdating = true;
             int numDays = Integer.parseInt(commands[1]);
             try {
                 bot.requestUpdate(numDays);
             } catch (CommandNotFoundException e) {
-                return "Could not update data";
+                completableFuture.complete("Could not update data");
             }
-            isUpdating = false;
-            return "Update maintenance is complete";
+            completableFuture.complete("Update maintenance is complete");
 
         } else {
-            return "Here are the available commands: \n" +
+            completableFuture.complete("Here are the available commands: \n" +
                     "\n" +
                     "   -stats: s!stats <god name> <low>\n" +
                     "   -update: s!update <number of days>\n" +
@@ -132,9 +132,10 @@ public class MessageProcessor {
                     "    <low> sets the data to give only low mmr information\n" +
                     "      ---default is high mmr information\n" +
                     "\n" +
-                    "    <number of days> must be at least 1 but less than or equal to 30\n";
+                    "    <number of days> must be at least 1 but less than or equal to 30\n");
 
         }
+        return completableFuture;
     }
 
 }
