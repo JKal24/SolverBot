@@ -5,6 +5,7 @@ import com.astro.smitesolver.discord.service.DataFetchingService;
 import com.astro.smitesolver.discord.repository.GodNameRepository;
 import com.astro.smitesolver.exception.CommandNotFoundException;
 import com.astro.smitesolver.exception.GodNotFoundException;
+import com.astro.smitesolver.exception.PatchNotFoundException;
 import com.astro.smitesolver.exception.UpdateDataException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.InvalidDataAccessResourceUsageException;
@@ -24,6 +25,7 @@ public class SolverBot {
 
     public TotalGodData getRequestedGod(String name, boolean isHighMMR) {
         try {
+            name = name.substring(0, 1).toUpperCase() + name.substring(1);
             int godID = godNameRepository.findByName(name).getGodID();
             return dataFetchingService.getPerformanceData(godID, isHighMMR);
         } catch (InvalidDataAccessResourceUsageException e) {
@@ -43,10 +45,10 @@ public class SolverBot {
         return dataFetchingService.getBanRates(highMMR);
     }
 
-    public boolean requestUpdate(int numDays) throws CommandNotFoundException {
+    public boolean doUpdate(int numDays) throws CommandNotFoundException {
         try {
             dataFetchingService.requestUpdate(numDays);
-        } catch (UpdateDataException e) {
+        } catch (UpdateDataException updateDataException) {
             throw new CommandNotFoundException("Update could not be requested");
         }
         return false;

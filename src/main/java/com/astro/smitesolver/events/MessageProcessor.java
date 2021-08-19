@@ -2,16 +2,19 @@ package com.astro.smitesolver.events;
 
 import com.astro.smitesolver.bot.SolverBot;
 import com.astro.smitesolver.discord.entity.auxillary.Item;
+import com.astro.smitesolver.discord.entity.totaldata.BanRateRanking;
+import com.astro.smitesolver.discord.entity.totaldata.PickRateRanking;
 import com.astro.smitesolver.discord.entity.totaldata.TotalGodData;
+import com.astro.smitesolver.discord.entity.totaldata.WinRateRanking;
 import com.astro.smitesolver.exception.CommandNotFoundException;
 import com.astro.smitesolver.exception.GodNotFoundException;
 import com.astro.smitesolver.utils.Commands;
-import discord4j.core.spec.EmbedCreateSpec;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 
@@ -20,6 +23,9 @@ public class MessageProcessor {
 
     @Autowired
     private SolverBot bot;
+
+    @Value("${mode}")
+    private String mode;
 
     public String getInfoName(String command) {
         if (command.equals(Commands.stats.name())) {
@@ -43,10 +49,23 @@ public class MessageProcessor {
         }
     }
 
-    @Async
-    public Future<String> processSolverEvent(String... commands) {
+    public Map<String, Future<String>> processSolverEvent(String... commands) {
         String command = commands[0];
-        CompletableFuture<String> completableFuture = new CompletableFuture<>();
+
+        Map<String, Future<String>> completableFutures = new LinkedHashMap<>();
+
+        if (mode.equals("development") && command.equals(Commands.update.name())) {
+            int numDays = Integer.parseInt(commands[1]);
+            CompletableFuture<String> update = new CompletableFuture<>();
+            try {
+                bot.doUpdate(numDays);
+                update.complete("Update maintenance is complete");
+            } catch (CommandNotFoundException e) {
+                update.complete("Could not update data");
+            }
+            completableFutures.put(command, update);
+            return completableFutures;
+        }
 
         // Getting god data event
         if (command.equals(Commands.stats.name())) {
@@ -55,87 +74,142 @@ public class MessageProcessor {
             try {
                 totalGodData = bot.getRequestedGod(commands[1].toLowerCase(), !isLow);
             } catch (GodNotFoundException e) {
-                completableFuture.complete(e.getMessage());
-                return completableFuture;
+                CompletableFuture<String> error = new CompletableFuture<>();
+                error.complete(e.getMessage());
+                return completableFutures;
             }
 
-            StringBuilder stringBuilder = new StringBuilder();
+            CompletableFuture<String> statistics = new CompletableFuture<>();
 
-            stringBuilder.append(totalGodData.getGodName());
-            stringBuilder.append(String.format("\nWin Rate: %.2f \nPick Rate: %.2f \nBan Rate: %.2f \n",
-                    totalGodData.getNewPatchWinRate(), totalGodData.getNewPatchPickRate(), totalGodData.getNewPatchBanRate()));
+            statistics.complete(String.format("""
+                            *Win Rate:* %.2f%%\s
+                            *Pick Rate:* %.2f%%\s
+                            *Ban Rate:* %.2f%%
+                            *Matches Played:* %d
+                            
+                            **Average Performance**
+                            Average Damage Per Minute: %d\s
+                            Average Damage Mitigated Per Minute: %d
+                            """,
+                    totalGodData.getNewPatchWinRate() * 100.0, totalGodData.getNewPatchPickRate() * 100.0,
+                    totalGodData.getNewPatchBanRate(), totalGodData.getNewPatchMatchesPlayed(),
+                    totalGodData.getAverageDamageDone(), totalGodData.getAverageDamageMitigated()));
+            completableFutures.put(String.format("Statistics for %s\n", totalGodData.getGodName()), statistics);
 
-            stringBuilder.append(String.format("Average Damage Done: %d \nAverage Basic Attack Damage: %d \nAverage Damage Mitigated: %d\n",
-                    totalGodData.getAverageDamageDone(), totalGodData.getAverageBasicAttackDamage(), totalGodData.getAverageDamageMitigated()));
+            CompletableFuture<String> itemsList = new CompletableFuture<>();
 
+            StringBuilder itemBuilder = new StringBuilder();
             Map<Item, Integer> items = totalGodData.getNewPatchPopularItems();
 
-            stringBuilder.append("Popular Items: ");
-            int selectTen = 10;
+            int selectTopTen = 10;
             for (Map.Entry<Item, Integer> itemEntry : items.entrySet()) {
-                if (selectTen <= 0) {
+                if (selectTopTen <= 0) {
                     break;
                 }
                 Item selectedItem = itemEntry.getKey();
-                stringBuilder.append(selectedItem.getItemName());
-                stringBuilder.append("\n");
+                itemBuilder.append(selectedItem.getItemName() + "\n");
                 // Add item image uri in the future?
-                selectTen--;
+                selectTopTen--;
             }
 
+            itemsList.complete(itemBuilder.toString());
+            completableFutures.put("Popular Items\n", itemsList);
+
+            CompletableFuture<String> activesList = new CompletableFuture<>();
+
+            StringBuilder activesBuilder = new StringBuilder();
             Map<String, Integer> actives = totalGodData.getPopularActives();
 
-            stringBuilder.append("Popular Actives: ");
             int selectFour = 4;
             for (Map.Entry<String, Integer> activeEntry : actives.entrySet()) {
                 if (selectFour <= 0) {
                     break;
                 }
-                stringBuilder.append(activeEntry.getKey());
-                stringBuilder.append("\n");
+                activesBuilder.append(activeEntry.getKey());
+                activesBuilder.append("\n");
                 selectFour--;
             }
-            completableFuture.complete(stringBuilder.toString());
+            activesList.complete(activesBuilder.toString());
+            completableFutures.put("Popular Actives", activesList);
 
         } else if (command.equals(Commands.winrate.name())) {
+            CompletableFuture<String> winrate = new CompletableFuture<>();
             boolean isLow = commands[commands.length - 1].equals(Commands.low.name());
-            completableFuture.complete(bot.getWinRateLeaderboard(!isLow).toString());
+            int topThirty = 30;
+
+            StringBuilder winRateBuilder = new StringBuilder();
+            for (WinRateRanking winRateRanking : bot.getWinRateLeaderboard(!isLow)) {
+                if (topThirty <= 0) break;
+                winRateBuilder.append(String.format("%s %.2f\n", winRateRanking.getGodName(), winRateRanking.getWinRate()));
+                topThirty--;
+            }
+
+            winrate.complete(winRateBuilder.toString());
+            completableFutures.put("Winrate Leaderboard", winrate);
 
         } else if (command.equals(Commands.pickrate.name())) {
+            CompletableFuture<String> pickrate = new CompletableFuture<>();
             boolean isLow = commands[commands.length - 1].equals(Commands.low.name());
-            completableFuture.complete(bot.getPickRateLeaderboard(!isLow).toString());
+            int topThirty = 30;
+
+            StringBuilder pickRateBuilder = new StringBuilder();
+            for (PickRateRanking pickRateRanking : bot.getPickRateLeaderboard(!isLow)) {
+                if (topThirty <= 0) break;
+                pickRateBuilder.append(String.format("%s %.2f\n", pickRateRanking.getGodName(), pickRateRanking.getPickRate()));
+                topThirty--;
+            }
+
+            pickrate.complete(pickRateBuilder.toString());
+            completableFutures.put("Pickrate Leaderboard", pickrate);
 
         } else if (command.equals(Commands.banrate.name())) {
+            CompletableFuture<String> banrate = new CompletableFuture<>();
             boolean isLow = commands[commands.length - 1].equals(Commands.low.name());
-            completableFuture.complete(bot.getBanRateLeaderboard(!isLow).toString());
+            int topThirty = 30;
 
-        } else if (command.equals(Commands.update.name())) {
-            int numDays = Integer.parseInt(commands[1]);
-            try {
-                bot.requestUpdate(numDays);
-            } catch (CommandNotFoundException e) {
-                completableFuture.complete("Could not update data");
+            StringBuilder banRateBuilder = new StringBuilder();
+            for (BanRateRanking banRateRanking : bot.getBanRateLeaderboard(!isLow)) {
+                if (topThirty <= 0) break;
+                banRateBuilder.append(String.format("%s %.2f\n", banRateRanking.getGodName(), banRateRanking.getBanRate()));
+                topThirty--;
             }
-            completableFuture.complete("Update maintenance is complete");
+
+            banrate.complete(banRateBuilder.toString());
+            completableFutures.put("Banrate Leaderboard", banrate);
 
         } else {
-            completableFuture.complete("Here are the available commands: \n" +
-                    "\n" +
-                    "   -stats: s!stats <god name> <low>\n" +
-                    "   -update: s!update <number of days>\n" +
-                    "\n" +
-                    "   -winrate: s!winrate <low>\n" +
-                    "   -pickrate: s!pickrate <low>\n" +
-                    "   -banrate: s!banrate <low>\n" +
-                    "   ---displays leaderboard data\n" +
-                    "\n" +
-                    "    <low> sets the data to give only low mmr information\n" +
-                    "      ---default is high mmr information\n" +
-                    "\n" +
-                    "    <number of days> must be at least 1 but less than or equal to 30\n");
-
+            CompletableFuture<String> commandInfo = new CompletableFuture<>();
+            if (mode.equals("development")) {
+                commandInfo.complete("Here are the available commands: \n" +
+                        "\n" +
+                        "   -stats: s!stats <god name> <low>\n" +
+                        "   -update: s!update <number of days>\n" +
+                        "\n" +
+                        "   -winrate: s!winrate <low>\n" +
+                        "   -pickrate: s!pickrate <low>\n" +
+                        "   -banrate: s!banrate <low>\n" +
+                        "   ---displays leaderboard data\n" +
+                        "\n" +
+                        "    <low> sets the data to give only low mmr information\n" +
+                        "      ---default is high mmr information\n" +
+                        "\n" +
+                        "    <number of days> must be at least 1 but less than or equal to 30\n");
+            } else {
+                commandInfo.complete("Here are the available commands: \n" +
+                        "\n" +
+                        "   -stats: s!stats <god name> <low>\n" +
+                        "\n" +
+                        "   -winrate: s!winrate <low>\n" +
+                        "   -pickrate: s!pickrate <low>\n" +
+                        "   -banrate: s!banrate <low>\n" +
+                        "   ---displays leaderboard data\n" +
+                        "\n" +
+                        "    <low> sets the data to give only low mmr information\n" +
+                        "      ---default is high mmr information\n");
+            }
+            completableFutures.put("Commands", commandInfo);
         }
-        return completableFuture;
+        return completableFutures;
     }
 
 }

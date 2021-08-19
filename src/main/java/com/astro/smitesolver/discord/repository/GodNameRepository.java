@@ -7,6 +7,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface GodNameRepository extends JpaRepository<GodName, Integer> {
-    @Query(value = "SELECT * FROM god_names WHERE god_name=?1",nativeQuery = true)
+    @Query(value = "SELECT g FROM god_names g WHERE g.godName=?1")
     GodName findByName(String name);
 }

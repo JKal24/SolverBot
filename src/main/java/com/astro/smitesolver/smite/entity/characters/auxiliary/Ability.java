@@ -63,6 +63,16 @@ public class Ability {
         this.abilityDamage = abilityDamage;
     }
 
+    public String getAbilityDescription() {
+        return "Cooldown='" + cooldown + '\'' +
+                ", Cost='" + cost + '\'' +
+                ", Description='" + description + '\'';
+    }
+
+    public String getAbilityAttributes() {
+        return abilityType.toString() + abilityDamage.toString();
+    }
+
     @Override
     public String toString() {
         return "Cooldown='" + cooldown + '\'' +

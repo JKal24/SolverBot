@@ -7,7 +7,10 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 @Service
 public class MessageEventListener implements EventListener<MessageCreateEvent> {
@@ -21,7 +24,7 @@ public class MessageEventListener implements EventListener<MessageCreateEvent> {
         // Any other types of commands will have a different prefix and a different listener.
         Message message = event.getMessage();
 
-
+        // Standard response loop
         return Mono.just(message)
                 .filter(checkMessage -> checkMessage.getAuthor().map(user -> !user.isBot()).orElse(false))
                 .filter(checkMessage -> checkMessage.getContent().startsWith("s!"))
@@ -33,7 +36,9 @@ public class MessageEventListener implements EventListener<MessageCreateEvent> {
                     embedCreateSpec.setAuthor("Smite Solver :: Commands with s!", null, null);
 
                     try {
-                        embedCreateSpec.addField(processor.getInfoName(commands[0]), processor.processSolverEvent(commands).get(), false);
+                        for (Map.Entry<String, Future<String>> entry : processor.processSolverEvent(commands).entrySet()) {
+                            embedCreateSpec.addField(entry.getKey(), entry.getValue().get(), true);
+                        }
                     } catch (InterruptedException | ExecutionException e) {
                         embedCreateSpec.addField(processor.getInfoName(commands[0]), "Error accessing data", false);
                     }
@@ -51,9 +56,4 @@ public class MessageEventListener implements EventListener<MessageCreateEvent> {
         return EventListener.super.handleError(error);
     }
 
-    private Mono<Void> blankMessage(Message message) {
-        return Mono.just(message)
-                .flatMap(Message::getChannel)
-                .flatMap(messageChannel -> messageChannel.createMessage(String.format("Could not get data for %s", message.getContent()))).then();
-    }
 }
