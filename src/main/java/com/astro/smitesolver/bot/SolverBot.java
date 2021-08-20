@@ -45,7 +45,7 @@ public class SolverBot {
         return dataFetchingService.getBanRates(highMMR);
     }
 
-    @Scheduled(cron = "* * */4 * * ?")
+    @Scheduled(cron = "* * */6 * * ?")
     public void doUpdate() throws CommandNotFoundException {
         try {
             dataFetchingService.requestUpdate(1);
