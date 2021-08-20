@@ -24,7 +24,7 @@ public class MessageProcessor {
     @Autowired
     private SolverBot bot;
 
-    @Value("${mode}")
+    @Value("${MODE}")
     private String mode;
 
     public String getInfoName(String command) {
