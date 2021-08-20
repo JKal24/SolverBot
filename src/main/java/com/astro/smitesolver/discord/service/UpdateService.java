@@ -29,9 +29,6 @@ public class UpdateService {
     @Autowired
     private ItemNameRepository itemNameRepository;
 
-    @Autowired
-    private ItemDataRepository itemDataRepository;
-
     /**
      * @param date this is the date of when the data was updated
      * @param versionID this is the version which was recorded on the day the update went live,
@@ -53,7 +50,6 @@ public class UpdateService {
 
         for (BaseItemInfo info : itemList) {
             itemNameRepository.save(new BaseItemName(info.getItemID(), info.getItemName(), info.getItemTier()));
-            itemDataRepository.save(new BaseItemData(info));
         }
 
     }
@@ -119,7 +115,5 @@ public class UpdateService {
     public List<BaseItemName> getItems() { return itemNameRepository.findAll(); }
 
     public List<GodName> getGods() { return godNameRepository.findAll(); }
-
-    public List<BaseItemData> getItemData() { return itemDataRepository.findAll(); }
 
 }
