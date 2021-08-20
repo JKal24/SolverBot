@@ -30,9 +30,6 @@ public class UpdateService {
     private ItemNameRepository itemNameRepository;
 
     @Autowired
-    private GodDataRepository godDataRepository;
-
-    @Autowired
     private ItemDataRepository itemDataRepository;
 
     /**
@@ -52,7 +49,6 @@ public class UpdateService {
     public void processUpdatedResources(GodInfo[] godList, BaseItemInfo[] itemList) {
         for (GodInfo info : godList) {
             godNameRepository.save(new GodName(info.getGodID(), info.getName()));
-            godDataRepository.save(new GodData(info));
         }
 
         for (BaseItemInfo info : itemList) {
@@ -125,7 +121,5 @@ public class UpdateService {
     public List<GodName> getGods() { return godNameRepository.findAll(); }
 
     public List<BaseItemData> getItemData() { return itemDataRepository.findAll(); }
-
-    public List<GodData> getGodData() { return godDataRepository.findAll(); }
 
 }
