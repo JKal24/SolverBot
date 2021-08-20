@@ -82,18 +82,21 @@ public class MessageProcessor {
             CompletableFuture<String> statistics = new CompletableFuture<>();
 
             statistics.complete(String.format("""
-                            *Win Rate:* %.2f%%\s
-                            *Pick Rate:* %.2f%%\s
-                            *Ban Rate:* %.2f%%
-                            *Matches Played:* %d
+                            %-20s %.2f%%\s
+                            %-20s %.2f%%\s
+                            %-20s %.2f%%
+                            %-20s %d
                             
                             **Average Performance**
-                            Average Damage Per Minute: %d\s
-                            Average Damage Mitigated Per Minute: %d
+                            %-35s %d\s
+                            %-35s %d
                             """,
-                    totalGodData.getNewPatchWinRate() * 100.0, totalGodData.getNewPatchPickRate() * 100.0,
-                    totalGodData.getNewPatchBanRate(), totalGodData.getNewPatchMatchesPlayed(),
-                    totalGodData.getAverageDamageDone(), totalGodData.getAverageDamageMitigated()));
+                    "Win Rate:", totalGodData.getNewPatchWinRate() * 100.0,
+                    "Pick Rate:", totalGodData.getNewPatchPickRate() * 100.0,
+                    "Ban Rate:", totalGodData.getNewPatchBanRate(),
+                    "Matches Played:", totalGodData.getNewPatchMatchesPlayed(),
+                    "Average Damage Per Minute:", totalGodData.getAverageDamageDone(),
+                    "Average Mitigated Per Minute:", totalGodData.getAverageDamageMitigated()));
             completableFutures.put(String.format("Statistics for %s\n", totalGodData.getGodName()), statistics);
 
             CompletableFuture<String> itemsList = new CompletableFuture<>();
@@ -107,7 +110,7 @@ public class MessageProcessor {
                     break;
                 }
                 Item selectedItem = itemEntry.getKey();
-                itemBuilder.append(selectedItem.getItemName() + "\n");
+                itemBuilder.append(selectedItem.getItemName()).append("\n");
                 // Add item image uri in the future?
                 selectTopTen--;
             }
@@ -140,7 +143,7 @@ public class MessageProcessor {
             StringBuilder winRateBuilder = new StringBuilder();
             for (WinRateRanking winRateRanking : bot.getWinRateLeaderboard(!isLow)) {
                 if (topThirty <= 0) break;
-                winRateBuilder.append(String.format("%s %.2f\n", winRateRanking.getGodName(), winRateRanking.getWinRate()));
+                winRateBuilder.append(String.format("%-20s %.2f\n", winRateRanking.getGodName(), winRateRanking.getWinRate()));
                 topThirty--;
             }
 
@@ -155,7 +158,7 @@ public class MessageProcessor {
             StringBuilder pickRateBuilder = new StringBuilder();
             for (PickRateRanking pickRateRanking : bot.getPickRateLeaderboard(!isLow)) {
                 if (topThirty <= 0) break;
-                pickRateBuilder.append(String.format("%s %.2f\n", pickRateRanking.getGodName(), pickRateRanking.getPickRate()));
+                pickRateBuilder.append(String.format("%-20s %.2f\n", pickRateRanking.getGodName(), pickRateRanking.getPickRate()));
                 topThirty--;
             }
 
@@ -170,7 +173,7 @@ public class MessageProcessor {
             StringBuilder banRateBuilder = new StringBuilder();
             for (BanRateRanking banRateRanking : bot.getBanRateLeaderboard(!isLow)) {
                 if (topThirty <= 0) break;
-                banRateBuilder.append(String.format("%s %.2f\n", banRateRanking.getGodName(), banRateRanking.getBanRate()));
+                banRateBuilder.append(String.format("%-20s %.2f\n", banRateRanking.getGodName(), banRateRanking.getBanRate()));
                 topThirty--;
             }
 
@@ -188,7 +191,7 @@ public class MessageProcessor {
                         "   -winrate: s!winrate <low>\n" +
                         "   -pickrate: s!pickrate <low>\n" +
                         "   -banrate: s!banrate <low>\n" +
-                        "   ---displays leaderboard data\n" +
+                        "   ---displays top 30 leaderboard data\n" +
                         "\n" +
                         "    <low> sets the data to give only low mmr information\n" +
                         "      ---default is high mmr information\n" +
@@ -202,7 +205,7 @@ public class MessageProcessor {
                         "   -winrate: s!winrate <low>\n" +
                         "   -pickrate: s!pickrate <low>\n" +
                         "   -banrate: s!banrate <low>\n" +
-                        "   ---displays leaderboard data\n" +
+                        "   ---displays top 30 leaderboard data\n" +
                         "\n" +
                         "    <low> sets the data to give only low mmr information\n" +
                         "      ---default is high mmr information\n");

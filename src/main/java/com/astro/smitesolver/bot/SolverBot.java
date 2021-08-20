@@ -5,10 +5,10 @@ import com.astro.smitesolver.discord.service.DataFetchingService;
 import com.astro.smitesolver.discord.repository.GodNameRepository;
 import com.astro.smitesolver.exception.CommandNotFoundException;
 import com.astro.smitesolver.exception.GodNotFoundException;
-import com.astro.smitesolver.exception.PatchNotFoundException;
 import com.astro.smitesolver.exception.UpdateDataException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.InvalidDataAccessResourceUsageException;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
@@ -45,17 +45,22 @@ public class SolverBot {
         return dataFetchingService.getBanRates(highMMR);
     }
 
-    public boolean doUpdate(int numDays) throws CommandNotFoundException {
+    @Scheduled(cron = "* * */4 * * ?")
+    public void doUpdate() throws CommandNotFoundException {
+        try {
+            dataFetchingService.requestUpdate(1);
+        } catch (UpdateDataException updateDataException) {
+            throw new CommandNotFoundException("Update could not be requested");
+        }
+    }
+
+    // Used for development mode
+
+    public void doUpdate(int numDays) throws CommandNotFoundException {
         try {
             dataFetchingService.requestUpdate(numDays);
         } catch (UpdateDataException updateDataException) {
             throw new CommandNotFoundException("Update could not be requested");
         }
-        return false;
-    }
-
-    private <T extends Comparable<T>> List<T> sortLeaderboards(List<T> leaderboards) {
-        Collections.sort(leaderboards);
-        return leaderboards;
     }
 }
