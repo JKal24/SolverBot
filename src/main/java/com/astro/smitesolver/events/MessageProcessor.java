@@ -186,7 +186,6 @@ public class MessageProcessor {
                 commandInfo.complete("Here are the available commands: \n" +
                         "\n" +
                         "   -stats: s!stats <god name> <low>\n" +
-                        "   -update: s!update <number of days>\n" +
                         "\n" +
                         "   -winrate: s!winrate <low>\n" +
                         "   -pickrate: s!pickrate <low>\n" +
@@ -196,7 +195,9 @@ public class MessageProcessor {
                         "    <low> sets the data to give only low mmr information\n" +
                         "      ---default is high mmr information\n" +
                         "\n" +
-                        "    <number of days> must be at least 1 but less than or equal to 30\n");
+                        "---  *Development Mode*  ---\n" +
+                        "   -update: s!update <number of days>\n" +
+                        "    <number of days> must be at least 1 but less than or equal to 30");
             } else {
                 commandInfo.complete("Here are the available commands: \n" +
                         "\n" +
