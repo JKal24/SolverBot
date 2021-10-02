@@ -2,18 +2,15 @@ package com.astro.smitesolver.discord.service;
 
 import com.astro.smitesolver.discord.entity.auxillary.*;
 import com.astro.smitesolver.discord.repository.*;
-import com.astro.smitesolver.smite.entity.characters.GodInfo;
-import com.astro.smitesolver.smite.entity.items.BaseItemInfo;
+import com.astro.smitesolver.smite.model.characters.GodInfo;
+import com.astro.smitesolver.smite.model.items.BaseItemInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.TimeZone;
 
 @Service
 public class UpdateService {
