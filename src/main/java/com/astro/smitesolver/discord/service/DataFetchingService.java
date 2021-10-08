@@ -5,8 +5,11 @@ import com.astro.smitesolver.config.PickRateComparator;
 import com.astro.smitesolver.config.WinRateComparator;
 import com.astro.smitesolver.discord.entity.totaldata.*;
 import com.astro.smitesolver.discord.repository.*;
+import com.astro.smitesolver.exception.CommandNotFoundException;
 import com.astro.smitesolver.exception.GodNotFoundException;
+import com.astro.smitesolver.exception.UpdateDataException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -96,7 +99,4 @@ public class DataFetchingService {
         return lowMMRList;
     }
 
-    public void requestUpdate(int numDays) {
-        matchParserService.updateData(numDays);
-    }
 }

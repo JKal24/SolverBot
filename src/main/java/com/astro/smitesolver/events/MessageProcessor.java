@@ -54,19 +54,6 @@ public class MessageProcessor {
 
         Map<String, Future<String>> completableFutures = new LinkedHashMap<>();
 
-        if (mode.equals("development") && command.equals(Commands.update.name())) {
-            int numDays = Integer.parseInt(commands[1]);
-            CompletableFuture<String> update = new CompletableFuture<>();
-            try {
-                bot.doUpdate(numDays);
-                update.complete("Update maintenance is complete");
-            } catch (CommandNotFoundException e) {
-                update.complete("Could not update data");
-            }
-            completableFutures.put(command, update);
-            return completableFutures;
-        }
-
         // Getting god data event
         if (command.equals(Commands.stats.name())) {
             boolean isLow = commands[commands.length - 1].equals(Commands.low.name());
@@ -182,35 +169,19 @@ public class MessageProcessor {
 
         } else {
             CompletableFuture<String> commandInfo = new CompletableFuture<>();
-            if (mode.equals("development")) {
-                commandInfo.complete("Here are the available commands: \n" +
-                        "\n" +
-                        "   -stats: s!stats <god name> <low>\n" +
-                        "\n" +
-                        "   -winrate: s!winrate <low>\n" +
-                        "   -pickrate: s!pickrate <low>\n" +
-                        "   -banrate: s!banrate <low>\n" +
-                        "   ---displays top 30 leaderboard data\n" +
-                        "\n" +
-                        "    <low> sets the data to give only low mmr information\n" +
-                        "      ---default is high mmr information\n" +
-                        "\n" +
-                        "---  *Development Mode*  ---\n" +
-                        "   -update: s!update <number of days>\n" +
-                        "    <number of days> must be at least 1 but less than or equal to 30");
-            } else {
-                commandInfo.complete("Here are the available commands: \n" +
-                        "\n" +
-                        "   -stats: s!stats <god name> <low>\n" +
-                        "\n" +
-                        "   -winrate: s!winrate <low>\n" +
-                        "   -pickrate: s!pickrate <low>\n" +
-                        "   -banrate: s!banrate <low>\n" +
-                        "   ---displays top 30 leaderboard data\n" +
-                        "\n" +
-                        "    <low> sets the data to give only low mmr information\n" +
-                        "      ---default is high mmr information\n");
-            }
+            commandInfo.complete("""
+                    Here are the available commands:\s
+
+                       -stats: s!stats <god name> <low>
+
+                       -winrate: s!winrate <low>
+                       -pickrate: s!pickrate <low>
+                       -banrate: s!banrate <low>
+                       ---displays top 30 leaderboard data
+
+                        <low> sets the data to give only low mmr information
+                          ---default is high mmr information
+                    """);
             completableFutures.put("Commands", commandInfo);
         }
         return completableFutures;

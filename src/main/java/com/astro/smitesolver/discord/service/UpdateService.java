@@ -2,9 +2,12 @@ package com.astro.smitesolver.discord.service;
 
 import com.astro.smitesolver.discord.entity.auxillary.*;
 import com.astro.smitesolver.discord.repository.*;
+import com.astro.smitesolver.exception.CommandNotFoundException;
+import com.astro.smitesolver.exception.UpdateDataException;
 import com.astro.smitesolver.smite.model.characters.GodInfo;
 import com.astro.smitesolver.smite.model.items.BaseItemInfo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -25,6 +28,9 @@ public class UpdateService {
 
     @Autowired
     private ItemNameRepository itemNameRepository;
+
+    @Autowired
+    private DataFetchingService dataFetchingService;
 
     /**
      * @param date this is the date of when the data was updated

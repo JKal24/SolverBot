@@ -44,23 +44,4 @@ public class SolverBot {
     public List<? extends BanRateRanking> getBanRateLeaderboard(boolean highMMR) {
         return dataFetchingService.getBanRates(highMMR);
     }
-
-    @Scheduled(cron = "* * */6 * * ?")
-    public void doUpdate() throws CommandNotFoundException {
-        try {
-            dataFetchingService.requestUpdate(1);
-        } catch (UpdateDataException updateDataException) {
-            throw new CommandNotFoundException("Update could not be requested");
-        }
-    }
-
-    // Used for development mode
-
-    public void doUpdate(int numDays) throws CommandNotFoundException {
-        try {
-            dataFetchingService.requestUpdate(numDays);
-        } catch (UpdateDataException updateDataException) {
-            throw new CommandNotFoundException("Update could not be requested");
-        }
-    }
 }

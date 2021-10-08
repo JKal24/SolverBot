@@ -8,6 +8,7 @@ import com.astro.smitesolver.discord.entity.auxillary.Item;
 import com.astro.smitesolver.discord.entity.dailydata.DailyGodData;
 import com.astro.smitesolver.discord.entity.dailydata.DailyGodDataHighMMR;
 import com.astro.smitesolver.discord.entity.dailydata.DailyGodDataLowMMR;
+import com.astro.smitesolver.exception.CommandNotFoundException;
 import com.astro.smitesolver.exception.EntityNotFoundException;
 import com.astro.smitesolver.exception.PatchNotFoundException;
 import com.astro.smitesolver.exception.UpdateDataException;
@@ -20,10 +21,13 @@ import com.astro.smitesolver.utils.Language;
 import com.astro.smitesolver.utils.Mode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -58,6 +62,17 @@ public class MatchParserService {
     @PostConstruct
     private void initializeAPI() {
         api.setCredentials(apiUri, devID, authKey);
+    }
+
+    @Scheduled(cron = "0 0 0 1/1 * ? *")
+    public void createUpdate() throws CommandNotFoundException {
+        try {
+            LocalDate prevDate = updateService.getMostRecentUpdate().getDate();
+            long daysRemoved = ChronoUnit.DAYS.between(prevDate, LocalDate.now(ZoneId.of("UTC")));
+            updateData((int) daysRemoved);
+        } catch (UpdateDataException updateDataException) {
+            LOGGER.log(Level.WARNING, "Update could not be requested");
+        }
     }
 
     public void updateData(int numDays) {
