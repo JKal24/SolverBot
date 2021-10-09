@@ -64,7 +64,7 @@ public class MatchParserService {
         api.setCredentials(apiUri, devID, authKey);
     }
 
-    @Scheduled(cron = "0 0 * * *")
+    @Scheduled(cron = "0 0 0 * * ?")
     public void createUpdate() throws CommandNotFoundException {
         try {
             LocalDate prevDate = updateService.getMostRecentUpdate().getDate();
