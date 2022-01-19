@@ -93,6 +93,8 @@ public class SessionUtils {
         return date.format(formatterUTC);
     }
 
+    // mm/dd/yyyy
+
     public static Boolean compareDate(String currentDate, String pastDate) {
         String[] currentDateArr = currentDate.split("/");
         int currentMonth = getDateAttribute(currentDateArr[0]);
