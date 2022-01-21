@@ -27,10 +27,9 @@ public class SessionTests {
         String devID = "1004";
         String authKey = "23DF3C7E9BD14D84BF892AD206B6755C";
 
-        // From API docs
+        // From https://www.md5hashgenerator.com/
 
-        String result = "0abd990b4ca9f86817e087ad68\n" +
-                "4515db";
+        String result = "8f53249be0922c94720834771ad43f0f";
 
         assertEquals(result, SessionUtils.makeSignature(request, time, devID, authKey));
 

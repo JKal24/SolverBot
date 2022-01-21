@@ -1,6 +1,6 @@
 package com.astro.smitesolver.api;
 
-import com.astro.smitesolver.smite.entity.session.SessionInfo;
+import com.astro.smitesolver.smite.model.SessionInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.stereotype.Component;

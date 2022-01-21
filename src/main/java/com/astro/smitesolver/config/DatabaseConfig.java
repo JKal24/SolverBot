@@ -1,6 +1,7 @@
 package com.astro.smitesolver.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -17,7 +18,6 @@ import javax.sql.DataSource;
 import java.util.HashMap;
 
 @Configuration
-@PropertySource("classpath:application.properties")
 @EnableJpaRepositories(
         basePackages = {"com.astro.smitesolver.discord.repository", "com.astro.smitesolver.smite.repository"},
         entityManagerFactoryRef = "databaseEntityManager",
@@ -33,7 +33,7 @@ public class DatabaseConfig {
         LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
         em.setDataSource(databaseDataSource());
         em.setPackagesToScan("com.astro.smitesolver.discord.entity.auxillary", "com.astro.smitesolver.discord.entity.dailydata",
-                "com.astro.smitesolver.discord.entity.totaldata", "com.astro.smitesolver.smite.entity.session");
+                "com.astro.smitesolver.discord.entity.totaldata", "com.astro.smitesolver.smite.model");
 
         HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
         em.setJpaVendorAdapter(vendorAdapter);

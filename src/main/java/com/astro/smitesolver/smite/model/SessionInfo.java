@@ -1,4 +1,4 @@
-package com.astro.smitesolver.smite.entity.session;
+package com.astro.smitesolver.smite.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
