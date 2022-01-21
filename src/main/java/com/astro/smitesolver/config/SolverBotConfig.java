@@ -6,21 +6,15 @@ import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.Event;
 import discord4j.core.object.presence.Activity;
 import discord4j.core.object.presence.Presence;
-import discord4j.discordjson.json.ActivityUpdateRequest;
-import discord4j.discordjson.json.gateway.StatusUpdate;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 
 import java.util.List;
-import java.util.Optional;
 
 @Configuration
-@PropertySource("classpath:application.properties")
-@EnableAutoConfiguration
-public class SolverBotConfiguration {
+public class SolverBotConfig {
 
     @Value("${token}")
     private String token;
