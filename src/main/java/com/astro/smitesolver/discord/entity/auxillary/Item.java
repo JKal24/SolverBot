@@ -1,6 +1,6 @@
 package com.astro.smitesolver.discord.entity.auxillary;
 
-import javax.persistence.Embeddable;
+import jakarta.persistence.Embeddable;
 import java.util.Objects;
 
 @Embeddable

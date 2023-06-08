@@ -23,7 +23,6 @@ public class MessageEventListener implements EventListener<MessageCreateEvent> {
         // This event listener will only register commands starting with s! for Smite related commands
         // Any other types of commands will have a different prefix and a different listener.
         Message message = event.getMessage();
-
         // Standard response loop
         return Mono.just(message)
                 .filter(checkMessage -> checkMessage.getAuthor().map(user -> !user.isBot()).orElse(false))

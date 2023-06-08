@@ -1,6 +1,6 @@
 package com.astro.smitesolver.discord.entity.totaldata;
 
-import javax.persistence.Entity;
+import jakarta.persistence.Entity;
 
 @Entity(name = "ban_rate_ranking_low_mmr")
 public class BanRateRankingLowMMR extends BanRateRanking {

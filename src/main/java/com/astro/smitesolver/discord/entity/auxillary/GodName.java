@@ -1,9 +1,7 @@
 package com.astro.smitesolver.discord.entity.auxillary;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
-
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
 @Entity(name="god_names")
 public class GodName {
 

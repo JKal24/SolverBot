@@ -2,7 +2,7 @@ package com.astro.smitesolver.smite.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
