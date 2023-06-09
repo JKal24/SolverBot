@@ -168,6 +168,7 @@ public class MessageProcessor {
             completableFutures.put("Banrate Leaderboard", banrate);
 
         } else {
+
             CompletableFuture<String> commandInfo = new CompletableFuture<>();
             commandInfo.complete("""
                     Here are the available commands:\s

@@ -2,7 +2,7 @@ package com.astro.smitesolver.discord.entity.dailydata;
 
 import com.astro.smitesolver.discord.entity.auxillary.Item;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;

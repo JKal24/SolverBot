@@ -1,6 +1,6 @@
 package com.astro.smitesolver.discord.entity.auxillary;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.io.Serializable;
 import java.time.Instant;
 import java.time.LocalDate;

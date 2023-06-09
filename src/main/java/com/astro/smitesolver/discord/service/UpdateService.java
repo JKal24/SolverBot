@@ -29,9 +29,6 @@ public class UpdateService {
     @Autowired
     private ItemNameRepository itemNameRepository;
 
-    @Autowired
-    private DataFetchingService dataFetchingService;
-
     /**
      * @param date this is the date of when the data was updated
      * @param versionID this is the version which was recorded on the day the update went live,

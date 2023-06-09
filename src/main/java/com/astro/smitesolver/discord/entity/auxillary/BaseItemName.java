@@ -1,7 +1,7 @@
 package com.astro.smitesolver.discord.entity.auxillary;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
 
 @Entity(name = "base_item_name")
 public class BaseItemName {

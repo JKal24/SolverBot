@@ -41,9 +41,6 @@ public class DataFetchingService {
     @Autowired
     private LowMMRWinRateRepository lowMMRWinRateRepository;
 
-    @Autowired
-    private MatchParserService matchParserService;
-
     public <T extends TotalGodData> T getPerformanceData(int godID, boolean highMMR) {
         if (highMMR) {
             for (TotalGodDataHighMMR totalGodDataHighMMR : highMMRPerformanceRepository.findAll()) {
@@ -60,7 +57,6 @@ public class DataFetchingService {
             }
         }
         throw new GodNotFoundException(String.format("Could not find the given god for the ID, %s", godID));
-
     }
 
     public List<? extends WinRateRanking> getWinRates(boolean highMMR) {

@@ -2,7 +2,7 @@ package com.astro.smitesolver.discord.entity.totaldata;
 
 import com.astro.smitesolver.discord.entity.auxillary.Item;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.Map;
 
 @MappedSuperclass

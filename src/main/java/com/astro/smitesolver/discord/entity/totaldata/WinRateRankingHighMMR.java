@@ -1,7 +1,7 @@
 package com.astro.smitesolver.discord.entity.totaldata;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
 
 @Entity(name = "win_rate_ranking_high_mmr")
 public class WinRateRankingHighMMR extends WinRateRanking {
