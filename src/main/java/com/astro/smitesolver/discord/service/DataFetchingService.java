@@ -57,7 +57,6 @@ public class DataFetchingService {
             }
         }
         throw new GodNotFoundException(String.format("Could not find the given god for the ID, %s", godID));
-
     }
 
     public List<? extends WinRateRanking> getWinRates(boolean highMMR) {
